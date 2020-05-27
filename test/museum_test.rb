@@ -141,10 +141,21 @@ class MuseumTest < MiniTest::Test
     @dmns.admit(@patron_2)
     @dmns.admit(@patron_3)
     museum = mock("Museum")
-    museum.stubs(:draw_lottery_winner).returns("Bob")
+    museum.stubs(:draw_lottery_winner).returns("Johnny")
 
-    assert_equal "Bob has won the IMAX edhibit lottery", @dmns.announce_lottery_winner(@imax)
+    assert_equal "Johnny has won the IMAX edhibit lottery", @dmns.announce_lottery_winner(@imax)
     assert_equal "No winners for this lottery", @dmns.announce_lottery_winner(@gems_and_minerals)
+  end
+
+  def test_cannot_attend_if_not_in_price_range
+    @dmns.add_exhibit(@gems_and_minerals)
+    @dmns.add_exhibit(@imax)
+    @dmns.add_exhibit(@dead_sea_scrolls)
+    tj = Patron.new("TJ", 7)
+    tj.add_interest("IMAX")
+    tj.add_interest("Dead Sea Scrolls")
+    @dmns.admit(tj)
+    assert_equal 7, tj.spending_money
   end
 
 
