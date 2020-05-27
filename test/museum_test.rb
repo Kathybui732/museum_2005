@@ -129,22 +129,21 @@ class MuseumTest < MiniTest::Test
   end
 
   def test_announce_lottery_winner
-    museum = mock("Museum")
     patron_1 = Patron.new("Bob", 0)
-    museum.add_exhibit(@dead_sea_scrolls)
-    museum.add_exhibit(@gems_and_minerals)
-    museum.add_exhibit(@imax)
+    @dmns.add_exhibit(@dead_sea_scrolls)
+    @dmns.add_exhibit(@gems_and_minerals)
+    @dmns.add_exhibit(@imax)
     patron_1.add_interest("Gems and Minerals")
     patron_1.add_interest("Dead Sea Scrolls")
     @patron_2.add_interest("Dead Sea Scrolls")
     @patron_3.add_interest("Dead Sea Scrolls")
-    museum.admit(patron_1)
-    museum.admit(@patron_2)
-    museum.admit(@patron_3)
-    museum.stubs(:draw_lottery_winner).returns("Johnny")
+    @dmns.admit(patron_1)
+    @dmns.admit(@patron_2)
+    @dmns.admit(@patron_3)
+    assert_equal "No winners for this lottery", @dmns.announce_lottery_winner(@gems_and_minerals)
+    @dmns.stubs(:draw_lottery_winner).returns("Johnny")
 
-    assert_equal "Johnny has won the IMAX edhibit lottery", museum.announce_lottery_winner(@imax)
-    assert_equal "No winners for this lottery", museum.announce_lottery_winner(@gems_and_minerals)
+    assert_equal "Johnny has won the IMAX edhibit lottery", @dmns.announce_lottery_winner(@imax)
   end
 
   def test_cannot_attend_if_not_in_price_range

@@ -59,7 +59,7 @@ class Museum
     if draw_lottery_winner(exhibit) == nil
       "No winners for this lottery"
     else
-      "#{draw_lottery_winner(exhibit).name} has won the #{exhibit.name} edhibit lottery"
+      "#{draw_lottery_winner(exhibit)} has won the #{exhibit.name} edhibit lottery"
     end
   end
 
