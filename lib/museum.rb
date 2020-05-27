@@ -40,28 +40,26 @@ class Museum
     pbei
   end
 
-  def enough_money?(patron, exhibit)
-    patron.spending_money > exhibit.cost
+  def not_enough_money?(patron, exhibit)
+    patron.spending_money < exhibit.cost
   end
 
   def ticket_lottery_contestants(exhibit)
-    @patrons.reject do |patron|
-      enough_money?(patron, exhibit)
+    @patrons.select do |patron|
+      not_enough_money?(patron, exhibit)
     end
   end
 
   def draw_lottery_winner(exhibit)
     winner = ticket_lottery_contestants(exhibit).sample(1)
-    winner[0].name
-
-    #winner class is patron, but when I call name it says it's a nil class....
+    winner.first
   end
 
   def announce_lottery_winner(exhibit)
     if draw_lottery_winner(exhibit) == nil
       "No winners for this lottery"
     else
-      "#{draw_lottery_winner(exhibit)} has won the #{exhibit.name} edhibit lottery"
+      "#{draw_lottery_winner(exhibit).name} has won the #{exhibit.name} edhibit lottery"
     end
   end
 
