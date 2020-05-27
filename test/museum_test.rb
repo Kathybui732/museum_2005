@@ -1,5 +1,6 @@
 require "minitest/autorun"
 require "minitest/pride"
+require "mocha/minitest"
 require "./lib/museum"
 require "./lib/patron"
 require "./lib/exhibit"
@@ -58,6 +59,22 @@ class MuseumTest < MiniTest::Test
     assert_equal [@patron_1, @patron_2, @patron_3], @dmns.patrons
   end
 
+  def test_patrons_by
+    @dmns.add_exhibit(@dead_sea_scrolls)
+    @dmns.add_exhibit(@gems_and_minerals)
+    @dmns.add_exhibit(@imax)
+    @patron_1.add_interest("Gems and Minerals")
+    @patron_1.add_interest("Dead Sea Scrolls")
+    @patron_2.add_interest("Dead Sea Scrolls")
+    @patron_3.add_interest("Dead Sea Scrolls")
+    @dmns.admit(@patron_1)
+    @dmns.admit(@patron_2)
+    @dmns.admit(@patron_3)
+    assert_equal [@patron_1, @patron_2, @patron_3], @dmns.patrons_by(@dead_sea_scrolls)
+    assert_equal [@patron_1], @dmns.patrons_by(@gems_and_minerals)
+    assert_equal [], @dmns.patrons_by(@imax)
+  end
+
   def test_patrons_by_exhibit_interests
     @dmns.add_exhibit(@dead_sea_scrolls)
     @dmns.add_exhibit(@gems_and_minerals)
@@ -70,44 +87,62 @@ class MuseumTest < MiniTest::Test
     @dmns.admit(@patron_2)
     @dmns.admit(@patron_3)
     expected = {
-      @dead_sea_scrolls => [@patron_1],
-      @gems_and_minerals => [@patron_1, @patron_2, @patron_3],
+      @dead_sea_scrolls => [@patron_1, @patron_2, @patron_3],
+      @gems_and_minerals => [@patron_1],
       @imax => []
     }
     assert_equal expected, @dmns.patrons_by_exhibit_interest
   end
 
   def test_ticket_lottery_contestants
+    patron_1 = Patron.new("Bob", 0)
     @dmns.add_exhibit(@dead_sea_scrolls)
     @dmns.add_exhibit(@gems_and_minerals)
     @dmns.add_exhibit(@imax)
-    @patron_1.add_interest("Gems and Minerals")
-    @patron_1.add_interest("Dead Sea Scrolls")
+    patron_1.add_interest("Gems and Minerals")
+    patron_1.add_interest("Dead Sea Scrolls")
     @patron_2.add_interest("Dead Sea Scrolls")
     @patron_3.add_interest("Dead Sea Scrolls")
-    @dmns.admit(@patron_1)
+    @dmns.admit(patron_1)
     @dmns.admit(@patron_2)
     @dmns.admit(@patron_3)
-    assert_equal [@patron_1, @patron_3], ticket_lottery_contestants(@dead_sea_scrolls)
+    assert_equal [patron_1, @patron_3], @dmns.ticket_lottery_contestants(@dead_sea_scrolls)
   end
 
   def test_draw_lottery_winner
+    patron_1 = Patron.new("Bob", 0)
     @dmns.add_exhibit(@dead_sea_scrolls)
     @dmns.add_exhibit(@gems_and_minerals)
     @dmns.add_exhibit(@imax)
-    @patron_1.add_interest("Gems and Minerals")
-    @patron_1.add_interest("Dead Sea Scrolls")
+    patron_1.add_interest("Gems and Minerals")
+    patron_1.add_interest("Dead Sea Scrolls")
     @patron_2.add_interest("Dead Sea Scrolls")
     @patron_3.add_interest("Dead Sea Scrolls")
-    @dmns.admit(@patron_1)
+    @dmns.admit(patron_1)
     @dmns.admit(@patron_2)
     @dmns.admit(@patron_3)
+    museum = mock("Museum")
+    museum.stubs(:draw_lottery_winner).returns("Johnny")
 
-    assert_equal "Johnny", @dmns.draw_lottery_winner(@dead_sea_scrolls)
-    assert_nil nil, @dmns.draw_lottery_winner(@gems_and_minerals)
+    assert_equal "Johnny", museum.draw_lottery_winner(@dead_sea_scrolls)
+    assert_nil nil, museum.draw_lottery_winner(@gems_and_minerals)
   end
 
   def test_announce_lottery_winner
+    patron_1 = Patron.new("Bob", 0)
+    @dmns.add_exhibit(@dead_sea_scrolls)
+    @dmns.add_exhibit(@gems_and_minerals)
+    @dmns.add_exhibit(@imax)
+    patron_1.add_interest("Gems and Minerals")
+    patron_1.add_interest("Dead Sea Scrolls")
+    @patron_2.add_interest("Dead Sea Scrolls")
+    @patron_3.add_interest("Dead Sea Scrolls")
+    @dmns.admit(patron_1)
+    @dmns.admit(@patron_2)
+    @dmns.admit(@patron_3)
+    museum = mock("Museum")
+    museum.stubs(:draw_lottery_winner).returns("Bob")
+
     assert_equal "Bob has won the IMAX edhibit lottery", @dmns.announce_lottery_winner(@imax)
     assert_equal "No winners for this lottery", @dmns.announce_lottery_winner(@gems_and_minerals)
   end
