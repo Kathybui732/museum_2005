@@ -70,8 +70,8 @@ class MuseumTest < MiniTest::Test
     @dmns.admit(@patron_2)
     @dmns.admit(@patron_3)
     expected = {
-      @dead_sea_scrolls => [@patron_1, @patron_2, @patron_3],
-      @gems_and_minerals => [@patron_1],
+      @dead_sea_scrolls => [@patron_1],
+      @gems_and_minerals => [@patron_1, @patron_2, @patron_3],
       @imax => []
     }
     assert_equal expected, @dmns.patrons_by_exhibit_interest
@@ -103,9 +103,14 @@ class MuseumTest < MiniTest::Test
     @dmns.admit(@patron_2)
     @dmns.admit(@patron_3)
 
-    assert_equal "Bob", @dmns.draw_lottery_winner(@dead_sea_scrolls)
+    assert_equal "Johnny", @dmns.draw_lottery_winner(@dead_sea_scrolls)
     assert_nil nil, @dmns.draw_lottery_winner(@gems_and_minerals)
   end
 
-  
+  def test_announce_lottery_winner
+    assert_equal "Bob has won the IMAX edhibit lottery", @dmns.announce_lottery_winner(@imax)
+    assert_equal "No winners for this lottery", @dmns.announce_lottery_winner(@gems_and_minerals)
+  end
+
+
 end
